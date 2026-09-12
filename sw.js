@@ -1,4 +1,4 @@
-const CACHE = 'meal-archive-v1';
+const CACHE = 'meal-archive-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e=>{
@@ -13,11 +13,20 @@ self.addEventListener('activate', e=>{
   self.clients.claim();
 });
 
-// 앱 껍데기(html/css/js)만 캐시하고, Apps Script API 호출은 항상 네트워크로 보낸다.
+// 앱 껍데기(html/css/js)는 "네트워크 우선": 새 버전이 있으면 항상 그걸 먼저 쓰고,
+// 인터넷이 안 될 때만 저장해둔 캐시로 대신 보여준다.
+// Apps Script API 호출은 캐시하지 않고 항상 네트워크로 직접 보낸다.
 self.addEventListener('fetch', e=>{
   const url = e.request.url;
   if(url.includes('script.google.com')) return;
+
   e.respondWith(
-    caches.match(e.request).then(cached=> cached || fetch(e.request))
+    fetch(e.request)
+      .then(res=>{
+        const copy = res.clone();
+        caches.open(CACHE).then(c=> c.put(e.request, copy));
+        return res;
+      })
+      .catch(()=> caches.match(e.request))
   );
 });
