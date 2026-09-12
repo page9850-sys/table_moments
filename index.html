@@ -173,9 +173,27 @@
   .drop-zone img{ width:100%; height:220px; object-fit:cover; display:block; }
   .drop-zone .hint-title{ font-size:14.5px; color:var(--ink); font-weight:600; }
   .drop-zone .hint-sub{ font-size:12.5px; }
-  .drop-zone input[type=file]{
-    position:absolute; inset:0; opacity:0; cursor:pointer;
+  .pick-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:4px;
   }
+  .pick-btn{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 16px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:border-color .12s ease, transform .12s ease;
+  }
+  .pick-btn .glyph{ font-size:15px; }
+  .pick-btn:hover{ border-color:var(--pine); color:var(--pine); }
+  .pick-btn:active{ transform:scale(0.97); }
   .remove-photo{
     position:absolute; top:8px; right:8px;
     background:rgba(43,38,32,0.55);
@@ -357,8 +375,13 @@
   <div class="capture-card">
     <div class="drop-zone" id="dropZone">
       <span class="hint-title">사진을 올려주세요</span>
-      <span class="hint-sub">폰이면 바로 촬영, 컴이면 끌어다 놓기</span>
-      <input type="file" accept="image/*" capture="environment" id="fileInput">
+      <span class="hint-sub">촬영하거나, 갤러리에서 고르거나, 끌어다 놓기</span>
+      <div class="pick-buttons">
+        <button type="button" class="pick-btn" id="pickCameraBtn"><span class="glyph">📷</span>촬영하기</button>
+        <button type="button" class="pick-btn" id="pickGalleryBtn"><span class="glyph">🖼️</span>갤러리에서 선택</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="cameraInput" hidden>
+      <input type="file" accept="image/*" id="galleryInput" hidden>
     </div>
 
     <div class="two-col field-row">
@@ -447,7 +470,7 @@ function renderConnectBanner(){
     <div class="banner-card">
       <strong>아직 부엌과 연결되지 않았어요</strong>
       Google Apps Script 배포 URL을 붙여넣으면, 사진은 드라이브에 기록은 시트에 저장돼요.
-      <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/AKfycbzdQRgLBI8fZ496QYLsVAPKKJOb3NyXh1CRcL2ePHT2PA_Dx4PBRHZzq1jCaDtyKYuoKA/exec">
+      <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
       <div class="row"><button id="saveApiUrl">연결하기</button></div>
     </div>`;
   document.getElementById('saveApiUrl').addEventListener('click', ()=>{
@@ -475,7 +498,16 @@ document.getElementById('settingsBtn').addEventListener('click', ()=>{
 
 /* ====================== 사진 선택 ====================== */
 const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
+
+const EMPTY_ZONE_HTML = `
+    <span class="hint-title">사진을 올려주세요</span>
+    <span class="hint-sub">촬영하거나, 갤러리에서 고르거나, 끌어다 놓기</span>
+    <div class="pick-buttons">
+      <button type="button" class="pick-btn" id="pickCameraBtn"><span class="glyph">📷</span>촬영하기</button>
+      <button type="button" class="pick-btn" id="pickGalleryBtn"><span class="glyph">🖼️</span>갤러리에서 선택</button>
+    </div>
+    <input type="file" accept="image/*" capture="environment" id="cameraInput" hidden>
+    <input type="file" accept="image/*" id="galleryInput" hidden>`;
 
 function setPreview(file){
   selectedFile = file;
@@ -486,19 +518,22 @@ function setPreview(file){
 function resetDropZone(){
   selectedFile = null;
   dropZone.classList.remove('has-image');
-  dropZone.innerHTML = `
-    <span class="hint-title">사진을 올려주세요</span>
-    <span class="hint-sub">폰이면 바로 촬영, 컴이면 끌어다 놓기</span>
-    <input type="file" accept="image/*" capture="environment" id="fileInput">`;
-  bindFileInput();
+  dropZone.innerHTML = EMPTY_ZONE_HTML;
+  bindPickButtons();
 }
-function bindFileInput(){
-  const input = document.getElementById('fileInput');
-  input.addEventListener('change', e=>{
+function bindPickButtons(){
+  const cameraInput = document.getElementById('cameraInput');
+  const galleryInput = document.getElementById('galleryInput');
+  document.getElementById('pickCameraBtn').addEventListener('click', ()=> cameraInput.click());
+  document.getElementById('pickGalleryBtn').addEventListener('click', ()=> galleryInput.click());
+  cameraInput.addEventListener('change', e=>{
+    if(e.target.files && e.target.files[0]) setPreview(e.target.files[0]);
+  });
+  galleryInput.addEventListener('change', e=>{
     if(e.target.files && e.target.files[0]) setPreview(e.target.files[0]);
   });
 }
-bindFileInput();
+bindPickButtons();
 
 dropZone.addEventListener('click', e=>{
   if(e.target.id === 'removePhoto'){ resetDropZone(); e.stopPropagation(); }
