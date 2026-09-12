@@ -1,0 +1,19 @@
+{
+  "name": "우리 집 밥상",
+  "short_name": "밥상",
+  "description": "가족의 하루 세 끼를 남기는 조용한 기록장",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F6EFE2",
+  "theme_color": "#F6EFE2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

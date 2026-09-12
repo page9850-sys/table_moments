@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리 집 밥상</title>
+<meta name="description" content="가족의 하루 세 끼를 남기는 조용한 기록장">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F6EFE2">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6EFE2;
+    --paper:#FFFCF5;
+    --ink:#2B2620;
+    --muted:#8A7F6B;
+    --line:#E3D5BC;
+    --pine:#2F6659;
+    --pine-deep:#1F4A40;
+    --mustard:#C99A2E;
+    --mustard-soft:#F0DFAE;
+    --brick:#B5533B;
+    --shadow: 0 1px 0 rgba(43,38,32,0.06);
+    --radius-plate: 999px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Noto Sans KR', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:64px;
+  }
+  ::selection{ background:var(--mustard-soft); }
+
+  h1,h2,h3, .serif{
+    font-family:'Fraunces', 'Noto Sans KR', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  a{ color:inherit; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  /* ---------- header ---------- */
+  header.top{
+    max-width:760px;
+    margin:0 auto;
+    padding:36px 20px 18px;
+  }
+  header.top .eyebrow{
+    color:var(--pine);
+    font-size:13px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  header.top h1{
+    font-size:34px;
+    margin:0 0 8px;
+    line-height:1.15;
+  }
+  header.top p{
+    color:var(--muted);
+    margin:0;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  #settingsBtn{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:6px 12px;
+    font-size:12.5px;
+    color:var(--muted);
+    float:right;
+  }
+  #settingsBtn:hover{ border-color:var(--pine); color:var(--pine); }
+
+  /* ---------- connection banner ---------- */
+  #connectBanner{
+    max-width:760px;
+    margin:0 auto 8px;
+    padding:0 20px;
+  }
+  .banner-card{
+    background:var(--mustard-soft);
+    border:1px solid #DEC57C;
+    border-radius:16px;
+    padding:16px 18px;
+    font-size:13.5px;
+    line-height:1.7;
+  }
+  .banner-card strong{ display:block; margin-bottom:4px; font-size:14.5px; }
+  .banner-card input{
+    width:100%;
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #DEC57C;
+    font-size:13px;
+    background:#fff;
+  }
+  .banner-card .row{ display:flex; gap:8px; margin-top:10px; }
+  .banner-card button{
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    padding:9px 16px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+  }
+
+  /* ---------- capture panel ---------- */
+  .panel{
+    max-width:760px;
+    margin:0 auto 28px;
+    padding:0 20px;
+  }
+  .meal-tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .meal-tab{
+    flex:1;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 10px;
+    text-align:center;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .meal-tab .glyph{ font-size:20px; display:block; margin-bottom:4px; }
+  .meal-tab .label{ font-size:13px; font-weight:600; }
+  .meal-tab .time{ font-size:11px; color:var(--muted); }
+  .meal-tab.active{
+    border-color:var(--pine);
+    background:#fff;
+    box-shadow:0 2px 10px rgba(47,102,89,0.10);
+  }
+  .meal-tab:active{ transform:scale(0.98); }
+
+  .capture-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+  }
+  .drop-zone{
+    border:1.5px dashed var(--line);
+    border-radius:16px;
+    min-height:180px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:var(--muted);
+    text-align:center;
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+    background:repeating-linear-gradient(135deg, rgba(201,154,46,0.04) 0 12px, transparent 12px 24px);
+  }
+  .drop-zone.has-image{ border-style:solid; padding:0; }
+  .drop-zone img{ width:100%; height:220px; object-fit:cover; display:block; }
+  .drop-zone .hint-title{ font-size:14.5px; color:var(--ink); font-weight:600; }
+  .drop-zone .hint-sub{ font-size:12.5px; }
+  .drop-zone input[type=file]{
+    position:absolute; inset:0; opacity:0; cursor:pointer;
+  }
+  .remove-photo{
+    position:absolute; top:8px; right:8px;
+    background:rgba(43,38,32,0.55);
+    color:#fff; border:none; border-radius:8px;
+    font-size:12px; padding:5px 9px;
+  }
+
+  .field-row{ margin-top:14px; }
+  .field-row label{ font-size:12.5px; color:var(--muted); display:block; margin-bottom:6px; }
+  .field-row input[type=text], .field-row textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 13px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fff;
+    resize:none;
+  }
+  .two-col{ display:flex; gap:10px; }
+  .two-col > div{ flex:1; }
+
+  .submit-btn{
+    width:100%;
+    margin-top:16px;
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    font-size:15px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:background .12s;
+  }
+  .submit-btn:hover{ background:var(--pine-deep); }
+  .submit-btn:disabled{ background:#C9C1AF; cursor:not-allowed; }
+  .submit-btn .spinner{
+    width:14px; height:14px; border-radius:50%;
+    border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+  .submit-btn.loading .spinner{ display:inline-block; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ---------- timeline ---------- */
+  .timeline-head{
+    max-width:760px;
+    margin:0 auto 10px;
+    padding:0 20px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+  }
+  .timeline-head h2{ font-size:20px; margin:0; }
+  .timeline-head .count{ font-size:12.5px; color:var(--muted); }
+
+  .timeline{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .day-strip{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:16px 18px;
+  }
+  .day-strip .day-head{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .day-strip .day-date{ font-size:16px; font-weight:600; font-family:'Fraunces',serif; }
+  .day-strip .day-dow{ font-size:12.5px; color:var(--muted); }
+  .plates{
+    display:flex;
+    gap:14px;
+  }
+  .plate{
+    flex:1;
+    text-align:center;
+  }
+  .plate .ring{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:var(--radius-plate);
+    border:2px solid var(--line);
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#FBF6EA;
+    position:relative;
+    cursor:pointer;
+  }
+  .plate .ring img{ width:100%; height:100%; object-fit:cover; }
+  .plate.filled .ring{ border-color:var(--mustard); }
+  .plate .empty-glyph{ font-size:18px; opacity:0.35; }
+  .plate .plate-label{ font-size:11px; color:var(--muted); margin-top:6px; }
+  .plate .memo-tip{
+    font-size:10.5px;
+    color:var(--muted);
+    margin-top:2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .empty-archive{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+  }
+  .empty-archive .serif{ font-size:19px; color:var(--ink); margin-bottom:6px; }
+
+  /* ---------- lightbox ---------- */
+  .lightbox{
+    position:fixed; inset:0; background:rgba(43,38,32,0.82);
+    display:none; align-items:center; justify-content:center;
+    z-index:50; padding:24px;
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox-card{
+    background:#fff; border-radius:18px; overflow:hidden;
+    max-width:420px; width:100%;
+  }
+  .lightbox-card img{ width:100%; display:block; max-height:50vh; object-fit:cover; }
+  .lightbox-body{ padding:16px 18px 20px; }
+  .lightbox-body .meta{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .lightbox-body .memo{ font-size:14.5px; line-height:1.6; }
+  .lightbox-close{
+    position:absolute; top:18px; right:18px;
+    background:rgba(255,255,255,0.15); color:#fff; border:none;
+    width:34px; height:34px; border-radius:50%; font-size:16px;
+  }
+
+  #toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:11px 18px; border-radius:12px;
+    font-size:13.5px; opacity:0; transition:all .25s ease; pointer-events:none;
+    max-width:88vw; text-align:center;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width:420px){
+    header.top h1{ font-size:28px; }
+    .meal-tab .time{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button id="settingsBtn">연결 설정</button>
+  <p class="eyebrow">DAILY TABLE</p>
+  <h1>우리 집 밥상</h1>
+  <p>매일 세 번, 우리가 무얼 먹었는지 조용히 쌓아두는 곳.</p>
+</header>
+
+<div id="connectBanner"></div>
+
+<section class="panel">
+  <div class="meal-tabs" id="mealTabs">
+    <button class="meal-tab" data-meal="아침"><span class="glyph">🌤️</span><span class="label">아침</span><span class="time">06–09시</span></button>
+    <button class="meal-tab" data-meal="점심"><span class="glyph">☀️</span><span class="label">점심</span><span class="time">11–14시</span></button>
+    <button class="meal-tab" data-meal="저녁"><span class="glyph">🌙</span><span class="label">저녁</span><span class="time">18–21시</span></button>
+  </div>
+
+  <div class="capture-card">
+    <div class="drop-zone" id="dropZone">
+      <span class="hint-title">사진을 올려주세요</span>
+      <span class="hint-sub">폰이면 바로 촬영, 컴이면 끌어다 놓기</span>
+      <input type="file" accept="image/*" capture="environment" id="fileInput">
+    </div>
+
+    <div class="two-col field-row">
+      <div>
+        <label>날짜</label>
+        <input type="text" id="dateInput" readonly>
+      </div>
+      <div>
+        <label>누가 남겨요?</label>
+        <input type="text" id="authorInput" placeholder="예: 엄마">
+      </div>
+    </div>
+    <div class="field-row">
+      <label>한 줄 메모 (선택)</label>
+      <textarea id="memoInput" rows="2" placeholder="오늘 이 메뉴를 고른 이유, 누가 만들었는지, 뭐든 좋아요"></textarea>
+    </div>
+
+    <button class="submit-btn" id="submitBtn">
+      <span class="spinner"></span>
+      <span class="btn-text">밥상에 올리기</span>
+    </button>
+  </div>
+</section>
+
+<div class="timeline-head">
+  <h2>지난 기록</h2>
+  <span class="count" id="entryCount"></span>
+</div>
+<div class="timeline" id="timeline"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <div class="lightbox-card">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-body">
+      <div class="meta" id="lightboxMeta"></div>
+      <div class="memo" id="lightboxMemo"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ====================== 설정 ====================== */
+const STORAGE_KEY = 'meal-archive-apps-script-url';
+let API_URL = localStorage.getItem(STORAGE_KEY) || '';
+let selectedMeal = '아침';
+let selectedFile = null;
+let entriesCache = [];
+
+/* ====================== 초기화 ====================== */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+document.getElementById('dateInput').value = todayStr();
+
+function currentMealGuess(){
+  const h = new Date().getHours();
+  if(h < 10) return '아침';
+  if(h < 15) return '점심';
+  return '저녁';
+}
+selectedMeal = currentMealGuess();
+
+function renderTabs(){
+  document.querySelectorAll('.meal-tab').forEach(tab=>{
+    tab.classList.toggle('active', tab.dataset.meal === selectedMeal);
+  });
+}
+renderTabs();
+document.getElementById('mealTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.meal-tab');
+  if(!btn) return;
+  selectedMeal = btn.dataset.meal;
+  renderTabs();
+});
+
+function renderConnectBanner(){
+  const el = document.getElementById('connectBanner');
+  if(API_URL){ el.innerHTML=''; return; }
+  el.innerHTML = `
+    <div class="banner-card">
+      <strong>아직 부엌과 연결되지 않았어요</strong>
+      Google Apps Script 배포 URL을 붙여넣으면, 사진은 드라이브에 기록은 시트에 저장돼요.
+      <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      <div class="row"><button id="saveApiUrl">연결하기</button></div>
+    </div>`;
+  document.getElementById('saveApiUrl').addEventListener('click', ()=>{
+    const v = document.getElementById('apiUrlInput').value.trim();
+    if(!v){ return; }
+    API_URL = v;
+    localStorage.setItem(STORAGE_KEY, v);
+    renderConnectBanner();
+    loadEntries();
+    showToast('연결됐어요. 이제 기록을 시작해볼까요.');
+  });
+}
+renderConnectBanner();
+
+document.getElementById('settingsBtn').addEventListener('click', ()=>{
+  const cur = API_URL;
+  const v = prompt('Apps Script 배포 URL', cur || '');
+  if(v === null) return;
+  API_URL = v.trim();
+  if(API_URL){ localStorage.setItem(STORAGE_KEY, API_URL); }
+  else{ localStorage.removeItem(STORAGE_KEY); }
+  renderConnectBanner();
+  loadEntries();
+});
+
+/* ====================== 사진 선택 ====================== */
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+function setPreview(file){
+  selectedFile = file;
+  const url = URL.createObjectURL(file);
+  dropZone.classList.add('has-image');
+  dropZone.innerHTML = `<img src="${url}"><button class="remove-photo" id="removePhoto" type="button">다시 고르기</button>`;
+}
+function resetDropZone(){
+  selectedFile = null;
+  dropZone.classList.remove('has-image');
+  dropZone.innerHTML = `
+    <span class="hint-title">사진을 올려주세요</span>
+    <span class="hint-sub">폰이면 바로 촬영, 컴이면 끌어다 놓기</span>
+    <input type="file" accept="image/*" capture="environment" id="fileInput">`;
+  bindFileInput();
+}
+function bindFileInput(){
+  const input = document.getElementById('fileInput');
+  input.addEventListener('change', e=>{
+    if(e.target.files && e.target.files[0]) setPreview(e.target.files[0]);
+  });
+}
+bindFileInput();
+
+dropZone.addEventListener('click', e=>{
+  if(e.target.id === 'removePhoto'){ resetDropZone(); e.stopPropagation(); }
+});
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); });
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault();
+  if(e.dataTransfer.files && e.dataTransfer.files[0]) setPreview(e.dataTransfer.files[0]);
+});
+
+/* ====================== 업로드 ====================== */
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+document.getElementById('submitBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('submitBtn');
+  if(!API_URL){ showToast('먼저 상단의 "연결 설정"에서 연결해주세요'); return; }
+  if(!selectedFile){ showToast('사진을 먼저 골라주세요'); return; }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try{
+    const base64 = await fileToBase64(selectedFile);
+    const payload = {
+      date: document.getElementById('dateInput').value,
+      mealType: selectedMeal,
+      author: document.getElementById('authorInput').value.trim(),
+      memo: document.getElementById('memoInput').value.trim(),
+      filename: selectedFile.name || 'meal.jpg',
+      mimeType: selectedFile.type || 'image/jpeg',
+      imageBase64: base64
+    };
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || '업로드 실패');
+
+    resetDropZone();
+    document.getElementById('memoInput').value = '';
+    showToast('밥상에 올렸어요 🍚');
+    loadEntries();
+  }catch(err){
+    console.error(err);
+    showToast('저장에 실패했어요. 연결 주소를 다시 확인해주세요.');
+  }finally{
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+});
+
+/* ====================== 타임라인 ====================== */
+async function loadEntries(){
+  if(!API_URL) { renderTimeline([]); return; }
+  try{
+    const res = await fetch(API_URL + (API_URL.includes('?') ? '&' : '?') + 'action=list');
+    const data = await res.json();
+    entriesCache = data.entries || [];
+    renderTimeline(entriesCache);
+  }catch(err){
+    console.error(err);
+  }
+}
+
+function groupByDate(entries){
+  const map = {};
+  entries.forEach(e=>{
+    if(!map[e.date]) map[e.date] = {};
+    map[e.date][e.mealType] = e;
+  });
+  return Object.keys(map).sort().reverse().map(date=>({date, meals: map[date]}));
+}
+
+const DOW = ['일','월','화','수','목','금','토'];
+function fmtDate(dstr){
+  const d = new Date(dstr + 'T00:00:00');
+  return { md: `${d.getMonth()+1}월 ${d.getDate()}일`, dow: DOW[d.getDay()] + '요일' };
+}
+
+function renderTimeline(entries){
+  const wrap = document.getElementById('timeline');
+  document.getElementById('entryCount').textContent = entries.length ? `${entries.length}끼 기록` : '';
+
+  if(!entries.length){
+    wrap.innerHTML = `<div class="empty-archive"><div class="serif">아직 빈 상이에요</div>위에서 오늘 첫 끼니를 올려보세요.</div>`;
+    return;
+  }
+
+  const grouped = groupByDate(entries);
+  wrap.innerHTML = grouped.map(g=>{
+    const {md, dow} = fmtDate(g.date);
+    const plates = ['아침','점심','저녁'].map(meal=>{
+      const e = g.meals[meal];
+      const glyph = meal === '아침' ? '🌤️' : meal === '점심' ? '☀️' : '🌙';
+      if(e){
+        return `<div class="plate filled" data-id="${e.id}">
+          <div class="ring"><img src="${e.imageUrl}" loading="lazy"></div>
+          <div class="plate-label">${meal}</div>
+          ${e.memo ? `<div class="memo-tip">${escapeHtml(e.memo)}</div>` : ''}
+        </div>`;
+      }
+      return `<div class="plate">
+        <div class="ring"><span class="empty-glyph">${glyph}</span></div>
+        <div class="plate-label">${meal}</div>
+      </div>`;
+    }).join('');
+    return `<div class="day-strip">
+      <div class="day-head"><span class="day-date">${md}</span><span class="day-dow">${dow}</span></div>
+      <div class="plates">${plates}</div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ====================== 라이트박스 ====================== */
+document.getElementById('timeline').addEventListener('click', e=>{
+  const plate = e.target.closest('.plate.filled');
+  if(!plate) return;
+  const entry = entriesCache.find(x=> String(x.id) === plate.dataset.id);
+  if(!entry) return;
+  document.getElementById('lightboxImg').src = entry.imageUrl;
+  document.getElementById('lightboxMeta').textContent = `${entry.date} · ${entry.mealType}${entry.author ? ' · ' + entry.author : ''}`;
+  document.getElementById('lightboxMemo').textContent = entry.memo || '';
+  document.getElementById('lightbox').classList.add('open');
+});
+document.getElementById('lightboxClose').addEventListener('click', ()=>{
+  document.getElementById('lightbox').classList.remove('open');
+});
+document.getElementById('lightbox').addEventListener('click', e=>{
+  if(e.target.id === 'lightbox') e.currentTarget.classList.remove('open');
+});
+
+/* ====================== PWA ====================== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+loadEntries();
+</script>
+</body>
+</html>
